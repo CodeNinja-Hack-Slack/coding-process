@@ -1,4 +1,4 @@
-# /flow — AI 编程流程编排（Claude Code 版）
+# /flow — AI 编程流程编排（OpenCode 版）
 
 用户输入：`$ARGUMENTS`
 
@@ -13,12 +13,20 @@
 
 ### 检查 Superpowers 插件
 
-检查 `~/.claude/plugins/` 目录或使用插件 API 检查 Superpowers 是否已安装。
+检查 `opencode.json`（项目级或全局）中的 `plugin` 配置是否包含 `superpowers`。
 
 如果未安装：
 ```
 ⚠️ 未检测到 Superpowers 插件
-请先安装：/plugin install superpowers@claude-plugins-official
+
+请先安装 Superpowers：
+在 opencode.json 中添加：
+{
+  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]
+}
+
+然后重启 OpenCode。
+
 输入 1 继续（部分功能不可用），输入 2 终止
 ```
 
@@ -28,7 +36,7 @@
 
 ### 读取模式配置
 
-读取 `.claude/modes/modes.yaml`，获取 7 种场景定义。
+读取 `.opencode/modes/modes.yaml`，获取 7 种场景定义。
 
 ### 无参数（`/flow`）
 
@@ -90,7 +98,7 @@
 
 ### 读取场景配置
 
-从 `.claude/modes/modes.yaml` 读取选中场景的 stages 列表。
+从 `.opencode/modes/modes.yaml` 读取选中场景的 stages 列表。
 
 ### 执行每个阶段
 
@@ -103,8 +111,8 @@
 **执行逻辑**：
 
 1. **调用 Skill**：
-   - 使用 Claude Code 的 `skill` 工具调用对应的 Superpowers skill
-   - 例如：调用 brainstorming skill
+   - 使用 OpenCode 的 `skill` 工具调用对应的 Superpowers skill
+   - 例如：`skill({ name: "brainstorming" })`
    - 传递任务描述作为上下文
 
 2. **阶段完成**：
@@ -170,6 +178,6 @@
 
 注意：
 - 你是调度器，不是执行者
-- 每个阶段调用对应 skill，由 skill 提供具体执行指导
+- 每个阶段使用 `skill` 工具调用对应 skill，由 skill 提供具体执行指导
 - 保持阶段间控制权，阶段完成后回到此处继续下一阶段
 - 用户可随时输入 `stop` 终止流程

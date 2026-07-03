@@ -4,7 +4,7 @@
 
 - [/flow 命令](#flow-命令)
 - [Superpowers Skills](#superpowers-skills)
-- [CodeGraph MCP 工具](#codegraph-mcp-工具)
+- [Superpowers Tools 映射](#superpowers-tools-映射)
 
 ---
 
@@ -94,6 +94,8 @@
 
 ## Superpowers Skills
 
+所有 skills 由 [Superpowers](https://github.com/obra/superpowers) 插件提供。
+
 ### brainstorming
 
 **作用：** 需求探索和设计，通过苏格拉底式对话理清需求
@@ -166,91 +168,29 @@
 
 ---
 
-## CodeGraph MCP 工具
+## Superpowers Tools 映射
 
-### codegraph_files
+在 OpenCode 中，Superpowers skills 会调用以下工具：
 
-**作用：** 获取项目文件树结构
-
-```
-mcp__codegraph__codegraph_files(projectPath: "...")
-```
-
----
-
-### codegraph_search
-
-**作用：** 按名称搜索符号
-
-```
-mcp__codegraph__codegraph_search(query: "divide", projectPath: "...")
-```
-
----
-
-### codegraph_context
-
-**作用：** 获取任务的代码上下文
-
-```
-mcp__codegraph__codegraph_context(task: "修复除零错误", projectPath: "...")
-```
-
----
-
-### codegraph_callees
-
-**作用：** 列出指定符号调用的函数
-
-```
-mcp__codegraph__codegraph_callees(symbol: "divide", projectPath: "...")
-```
-
----
-
-### codegraph_callers
-
-**作用：** 列出调用指定符号的函数
-
-```
-mcp__codegraph__codegraph_callers(symbol: "divide", projectPath: "...")
-```
-
----
-
-### codegraph_impact
-
-**作用：** 分析修改影响
-
-```
-mcp__codegraph__codegraph_impact(symbol: "divide", projectPath: "...")
-```
-
----
-
-### codegraph_trace
-
-**作用：** 追踪两个符号之间的调用路径
-
-```
-mcp__codegraph__codegraph_trace(from: "calculate", to: "divide", projectPath: "...")
-```
-
----
-
-### codegraph_status
-
-**作用：** 检查索引健康状态
-
-```
-mcp__codegraph__codegraph_status(projectPath: "...")
-```
+| Superpowers 动作 | OpenCode 工具 | Claude Code 工具 |
+|-----------------|--------------|-----------------|
+| "Create a todo" / "mark complete" | `todowrite` | `todowrite` |
+| "Subagent (general-purpose)" | `task` tool | 子代理 API |
+| "Invoke a skill" | `skill` tool | `skill` tool |
+| "Read a file" | `read` | `read` |
+| "Create a file" / "edit a file" / "delete a file" | `apply_patch` | `edit` / `write` |
+| "Run a shell command" | `bash` | `bash` |
+| "Search file contents" | `grep` | `grep` |
+| "Find files by name" | `glob` | `glob` |
+| "Fetch a URL" | `webfetch` | `webfetch` |
 
 ---
 
 ## 依赖工具
 
-| 工具 | 用途 | 安装方式 |
-|------|------|----------|
-| Superpowers | 开发方法论 skills | `/plugin install superpowers@claude-plugins-official` |
-| CodeGraph MCP | 代码上下文分析 | Claude Code MCP 配置 |
+| 平台 | 工具 | 用途 | 安装方式 |
+|------|------|------|----------|
+| **Claude Code** | [Claude Code](https://claude.ai/code) | AI 编程助手 | 下载安装 |
+| **Claude Code** | [Superpowers](https://github.com/obra/superpowers) | 开发方法论 skills | `/plugin install superpowers@claude-plugins-official` |
+| **OpenCode** | [OpenCode](https://opencode.ai) | AI 编程助手 | `curl -fsSL https://opencode.ai/install \| bash` |
+| **OpenCode** | [Superpowers](https://github.com/obra/superpowers) | 开发方法论 skills | 在 `opencode.json` 中添加 `"plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]` |

@@ -1,11 +1,6 @@
 # reference 目录（Superpowers/OpenSpec 源码，不随项目分发）
 reference/
 
-# 运行时状态
-.coding-process/state/
-.coding-process/history/
-.coding-process/active
-
 # 本地配置
 .claude/settings.local.json
 
@@ -21,9 +16,6 @@ Thumbs.db
 .idea/
 
 # test-project 运行时产物
-test-project/.coding-process/state/
-test-project/.coding-process/history/
-test-project/.coding-process/active
 test-project/.claude/settings.local.json
 test-project/node_modules/
 test-project/

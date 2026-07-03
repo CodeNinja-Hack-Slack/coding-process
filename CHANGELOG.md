@@ -7,6 +7,61 @@
 
 ---
 
+## [6.1.0] - 2026-07-04
+
+### 🎯 第七次迭代：目录结构统一
+
+### 变更
+- **Claude Code 目录结构统一**：`.coding-process/modes.yaml` → `.claude/modes/modes.yaml`
+- **与 OpenCode 保持一致**：两个平台都采用 `<platform>/commands/` + `<platform>/modes/modes.yaml` 结构
+- **移除 .coding-process 目录**：完全删除旧的独立配置目录
+- **文档全面更新**：README、DESIGN、COMMANDS、install 脚本全部更新
+
+### 设计理念
+- **统一目录结构**：Claude Code 和 OpenCode 采用相同的布局
+- **极简主义**：所有配置集中在平台目录下
+
+---
+
+## [6.0.0] - 2026-07-04
+
+### 🎯 第六次迭代：依赖 Superpowers
+
+### 变更
+- **移除本地 skills**：`.claude/skills/` 和 `.opencode/skills/` 已删除
+- **依赖 Superpowers**：所有 skills 由 Superpowers 插件提供（14+ skills）
+- **精简架构**：只保留调度器（flow.md）和配置（modes.yaml）
+- **安装脚本更新**：检测 Superpowers 安装，不再复制 skills
+- **文档全面更新**：README、DESIGN、COMMANDS 反映新架构
+
+### 设计理念
+- **Superpowers 是核心**：coding-process 只是 Superpowers 的调度器
+- **自然语言优先**：不需要记触发词，说清楚想做什么就行
+- **极简架构**：一个命令文件 + 一个配置文件
+
+---
+
+## [5.0.0] - 2026-07-04
+
+### 🎯 第五次迭代：双平台支持
+
+### 新增
+- **Claude Code 版本**：`.claude/commands/flow.md` + `.claude/modes/modes.yaml`
+- **OpenCode 版本**：`.opencode/commands/flow.md` + `.opencode/modes/modes.yaml`
+- **双平台安装脚本**：支持 `--claude` 和 `--opencode` 参数选择性安装
+
+### 变更
+- **共享配置**：两个平台共享相同的 modes.yaml 结构
+- **安装脚本**：支持安装单个平台或两个平台
+- **文档全面重写**：README、DESIGN 支持双平台
+
+### 设计理念
+- **跨平台兼容**：一套配置，两个平台都能用
+- **自然语言优先**：不需要记触发词，说清楚想做什么就行
+- **极简架构**：一个命令文件 + 一个配置文件
+
+---
+
 ## [4.0.0] - 2026-06-08
 
 ### 🎯 第四次迭代：彻底精简架构

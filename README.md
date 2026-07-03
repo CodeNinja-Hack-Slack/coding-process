@@ -1,49 +1,21 @@
 # coding-process
 
-> AI 编程工作流编排工具 —— 用自然语言驱动 Superpowers skills
+> AI 编程工作流编排工具 —— 用自然语言驱动开发任务
 
-coding-process 是一个 Claude Code slash command 插件，让你用 `/flow 自然语言描述` 来执行各种开发任务，自动调用 Superpowers skills。
+coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude Code** 和 **OpenCode**。
 
-**核心价值**：不用记 Superpowers 繁琐的 skill 命令，说清楚想做什么就行。
+让你用 `/flow 自然语言描述` 来执行各种开发任务，自动调用 [Superpowers](https://github.com/obra/superpowers) 的 skills。
 
-## 功能特性
-
-- 🧠 **自然语言驱动**：说"修复登录 bug"，AI 自动选择合适的流程
-- 🎯 **7 种工作流场景**：覆盖新功能、修 bug、快速修改、审查、重构、TDD、并行开发
-- 🔍 **CodeGraph 集成**：代码搜索、调用链追踪、影响分析
-- 🔗 **Superpowers 集成**：自动调用 TDD、子代理开发、代码审查等 skills
-- 📦 **极简架构**：一个命令文件 + 一个配置文件
+**核心价值**：不用记复杂的开发流程，说清楚想做什么就行。
 
 ## 前置依赖
 
-| 依赖 | 用途 | 安装方式 |
+| 平台 | 依赖 | 安装方式 |
 |------|------|----------|
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | AI 编程助手 | `npm install -g @anthropic-ai/claude-code` |
-| [Superpowers](https://github.com/obra/superpowers) | 开发方法论 skills | `/plugin install superpowers@claude-plugins-official` |
-| [CodeGraph MCP](https://github.com/aspect-build/aspect-code-graph-mcp) | 代码上下文分析 | Claude Code MCP 配置 |
+| **Claude Code** | [Claude Code](https://claude.ai/code) + [Superpowers](https://github.com/obra/superpowers) | `claude` + `/plugin install superpowers@claude-plugins-official` |
+| **OpenCode** | [OpenCode](https://opencode.ai) + [Superpowers](https://github.com/obra/superpowers) | `opencode` + 在 `opencode.json` 中添加 `"plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]` |
 
-### 安装 Superpowers
-
-在 Claude Code 中执行：
-
-```
-/plugin install superpowers@claude-plugins-official
-```
-
-### 配置 CodeGraph MCP
-
-在 Claude Code 设置中添加 MCP server：
-
-```json
-{
-  "mcpServers": {
-    "codegraph": {
-      "command": "npx",
-      "args": ["-y", "@aspect-build/code-graph-mcp"]
-    }
-  }
-}
-```
+> **注意**：Superpowers 是必需依赖，提供了所有 skills。skills 由 Superpowers 插件全局提供，**不需要**存放在项目中。
 
 ## 安装
 
@@ -55,14 +27,30 @@ macOS / Linux：
 
 ```bash
 cd your-project
+
+# 安装两个平台版本
 curl -fsSL https://github.com/void-frost-craft/coding-process/raw/master/install.sh | bash
+
+# 或仅安装 OpenCode 版本
+curl -fsSL https://github.com/void-frost-craft/coding-process/raw/master/install.sh | bash -s -- --opencode
+
+# 或仅安装 Claude Code 版本
+curl -fsSL https://github.com/void-frost-craft/coding-process/raw/master/install.sh | bash -s -- --claude
 ```
 
 Windows PowerShell：
 
 ```powershell
 cd your-project
+
+# 安装两个平台版本
 irm https://github.com/void-frost-craft/coding-process/raw/master/install.ps1 | iex
+
+# 或仅安装 OpenCode 版本
+irm https://github.com/void-frost-craft/coding-process/raw/master/install.ps1 | iex -ArgumentList "--opencode"
+
+# 或仅安装 Claude Code 版本
+irm https://github.com/void-frost-craft/coding-process/raw/master/install.ps1 | iex -ArgumentList "--claude"
 ```
 
 ### 方式二：手动安装
@@ -74,14 +62,20 @@ git clone https://github.com/void-frost-craft/coding-process.git /tmp/coding-pro
 # 2. 进入你的项目目录
 cd /path/to/your/project
 
-# 3. 创建目录
-mkdir -p .claude/commands .coding-process
-
-# 4. 复制文件
+# ========== Claude Code 版本 ==========
+mkdir -p .claude/commands .claude/modes
 cp /tmp/coding-process/.claude/commands/flow.md .claude/commands/
-cp /tmp/coding-process/.coding-process/modes.yaml .coding-process/
+cp /tmp/coding-process/.coding-process/modes.yaml .claude/modes/modes.yaml
 
-# 5. 清理
+# ========== OpenCode 版本 ==========
+mkdir -p .opencode/commands .opencode/modes
+cp /tmp/coding-process/.opencode/commands/flow.md .opencode/commands/
+cp /tmp/coding-process/.opencode/modes/modes.yaml .opencode/modes/
+
+# 可选：OpenCode 项目配置
+cp /tmp/coding-process/opencode.json ./opencode.json
+
+# 3. 清理
 rm -rf /tmp/coding-process
 ```
 
@@ -135,30 +129,38 @@ rm -rf /tmp/coding-process
 
 > **💡 AI 智能识别**：使用 `/flow 任务描述` 时，AI 会分析你的自然语言，自动选择最合适的场景。不需要记触发词，说清楚想做什么就行。
 
-## CodeGraph 集成
-
-CodeGraph 提供代码上下文分析，帮助 AI 更准确地理解项目：
-
-| 阶段 | CodeGraph 工具 | 用途 |
-|------|---------------|------|
-| 探索 | `codegraph_files` + `codegraph_search` | 获取项目结构和相关符号 |
-| 构建 | `codegraph_callees` + `codegraph_callers` | 分析函数调用关系 |
-| 审查 | `codegraph_trace` | 追踪完整调用路径 |
-
 ## 项目结构
+
+### Claude Code 版本
 
 ```
 your-project/
 ├── .claude/
-│   └── commands/
-│       └── flow.md          # /flow 命令（调度器）
-└── .coding-process/
-    └── modes.yaml           # 场景配置（7 种工作流）
+│   ├── commands/
+│   │   └── flow.md          # /flow 命令（调度器）
+│   ├── modes/
+│   │   └── modes.yaml       # 场景配置（7 种工作流）
+│   └── skills/              # （可选，由 Superpowers 插件全局提供）
 ```
+
+### OpenCode 版本
+
+```
+your-project/
+├── .opencode/
+│   ├── commands/
+│   │   └── flow.md          # /flow 命令（调度器）
+│   ├── skills/              # （可选，由 Superpowers 插件全局提供）
+│   └── modes/
+│       └── modes.yaml       # 场景配置（7 种工作流）
+└── opencode.json            # OpenCode 项目配置（可选）
+```
+
+> **注意**：skills 目录不需要手动创建或复制，Superpowers 插件会自动加载。
 
 ## 自定义场景
 
-编辑 `.coding-process/modes.yaml` 即可自定义工作流场景：
+编辑对应平台的 modes.yaml 即可自定义工作流场景：
 
 ```yaml
 modes:
@@ -170,11 +172,9 @@ modes:
     stages:
       - name: EXPLORING
         skill: brainstorming
-        codegraph: true
         description: 理解代码结构
       - name: BUILDING
         skill: subagent-driven-development
-        codegraph: true
         description: 编写测试
       - name: VERIFYING
         skill: verification-before-completion
@@ -191,11 +191,12 @@ modes:
 ## 卸载
 
 ```bash
-# 删除项目配置
-rm -rf .coding-process/
+# 删除 Claude Code 版本
+rm -rf .claude/
 
-# 删除命令文件
-rm .claude/commands/flow.md
+# 删除 OpenCode 版本
+rm -rf .opencode/
+rm opencode.json
 ```
 
 ## 许可证

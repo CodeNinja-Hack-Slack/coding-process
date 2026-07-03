@@ -1,8 +1,8 @@
 # coding-process 设计文档
 
-> 版本：4.0
-> 日期：2026-06-08
-> 状态：精简架构
+> 版本：6.0
+> 日期：2026-07-04
+> 状态：Superpowers 调度器
 
 ---
 
@@ -10,33 +10,42 @@
 
 ### 1.1 项目定位
 
-coding-process 是一个 AI 编程流程编排工具，用自然语言驱动 Superpowers skills 执行开发任务。
+coding-process 是一个轻量级 AI 编程流程编排工具，作为 [Superpowers](https://github.com/obra/superpowers) 的调度器，支持 Claude Code 和 OpenCode。
 
-**核心价值**：不用记 Superpowers 繁琐的 skill 命令，用 `/flow 自然语言描述` 即可。
+**核心价值**：不用记 Superpowers 的复杂流程，用 `/flow 自然语言描述` 即可。
 
 ### 1.2 解决的问题
 
-Superpowers 有 14 个 skills，名字又长又难记：
-- `brainstorming` / `writing-plans` / `subagent-driven-development`
-- `requesting-code-review` / `finishing-a-development-branch`
-- `systematic-debugging` / `test-driven-development`
+Superpowers 提供了 14+ 个 skills，覆盖完整的开发流程：
+- brainstorming、writing-plans、subagent-driven-development
+- systematic-debugging、test-driven-development
+- requesting-code-review、finishing-a-development-branch
 - ...
 
-coding-process 把这些 skill 按场景分组，用户说任务，AI 自动选 skill。
+但直接使用 Superpowers 需要：
+1. 记住每个 skill 的名称和用途
+2. 手动判断应该使用哪个 skill
+3. 手动管理阶段间的切换
 
-### 1.3 工具选型
+coding-process 解决了这些问题：
+1. **自然语言驱动**：说任务，AI 自动选择场景
+2. **自动调度**：自动按顺序调用对应的 skill
+3. **极简配置**：只保留场景定义，不包含任何 skills
 
-| 工具 | 定位 | 提供能力 |
-|------|------|---------|
-| **Superpowers** | 执行纪律 | TDD、subagent 开发、代码审查、调试、验证、分支管理 |
-| **CodeGraph** (MCP) | 代码分析 | 代码搜索、调用链追踪、影响分析 |
+### 1.3 依赖关系
+
+| 组件 | 角色 | 说明 |
+|------|------|------|
+| **Superpowers** | 核心能力 | 提供所有 skills（14+ skills） |
+| **coding-process** | 调度器 | 识别场景、调度 skills |
+| **Claude Code / OpenCode** | 执行平台 | 运行 AI 和 skills |
 
 ### 1.4 核心设计原则
 
-1. **自然语言驱动** — 用户说任务，AI 自动选择场景和 skills
-2. **调用原生 skill** — flow.md 只负责调度，阶段执行全部委托
-3. **CodeGraph 提供上下文** — 修改代码时自动分析代码结构
-4. **极简架构** — 一个命令文件 + 一个配置文件
+1. **Superpowers 优先** — 所有执行能力来自 Superpowers，本项目只做调度
+2. **自然语言驱动** — 用户说任务，AI 自动选择场景
+3. **双平台兼容** — 一套配置，Claude Code 和 OpenCode 都能用
+4. **极简架构** — 调度器 + 配置文件，无冗余代码
 
 ---
 
@@ -65,7 +74,7 @@ AI 通过以下维度判断场景：
 
 ### 2.3 自定义场景
 
-用户可通过编辑 `.coding-process/modes.yaml` 自定义场景：
+用户可通过编辑对应平台的 modes.yaml 自定义场景：
 
 ```yaml
 modes:
@@ -77,11 +86,9 @@ modes:
     stages:
       - name: EXPLORING
         skill: brainstorming
-        codegraph: true
         description: 理解代码结构
       - name: BUILDING
         skill: subagent-driven-development
-        codegraph: true
         description: 编写测试
       - name: VERIFYING
         skill: verification-before-completion
@@ -90,59 +97,125 @@ modes:
 
 ---
 
-## 3. 阶段设计
+## 3. 架构设计
 
-### 3.1 阶段与 Skill 映射
+### 3.1 分层架构
 
-| 阶段 | 说明 | 可用 Skill | CodeGraph |
-|------|------|-----------|-----------|
-| EXPLORING | 探索/调试 | `brainstorming`、`systematic-debugging` | ✅ |
-| PROPOSING | 需求设计 | `brainstorming` | ❌ |
-| PLANNING | 计划拆分 | `writing-plans`、`test-driven-development`、`dispatching-parallel-agents` | ❌ |
-| BUILDING | 代码实现 | `subagent-driven-development`、`test-driven-development`、`dispatching-parallel-agents` | ✅ |
-| REVIEWING | 代码审查 | `requesting-code-review` | ✅ |
-| VERIFYING | 验证 | `verification-before-completion` | ❌ |
-| FINISHING | 完成 | `finishing-a-development-branch` | ❌ |
+```
+┌─────────────────────────────────────┐
+│          User Input                  │
+│     "/flow 修复登录 bug"             │
+└─────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────┐
+│      coding-process 调度器           │
+│   - 解析自然语言                     │
+│   - 识别场景                         │
+│   - 读取 modes.yaml                  │
+│   - 按序调用 Superpowers skills      │
+└─────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────┐
+│          Superpowers                 │
+│   - brainstorming                    │
+│   - systematic-debugging             │
+│   - subagent-driven-development       │
+│   - requesting-code-review           │
+│   - verification-before-completion   │
+│   - finishing-a-development-branch   │
+│   - writing-plans                    │
+│   - test-driven-development          │
+│   - dispatching-parallel-agents      │
+│   ...                                │
+└─────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────┐
+│     Claude Code / OpenCode           │
+│       执行平台                        │
+└─────────────────────────────────────┘
+```
 
-### 3.2 CodeGraph 集成
+### 3.2 文件结构
 
-| 阶段 | CodeGraph 工具 | 用途 |
-|------|---------------|------|
-| EXPLORING | `codegraph_files` + `codegraph_search` | 获取项目结构和相关符号 |
-| BUILDING | `codegraph_callees` + `codegraph_callers` | 分析函数调用关系 |
-| REVIEWING | `codegraph_trace` | 追踪完整调用路径 |
-
-**降级策略**：用户未安装 CodeGraph MCP 时，跳过代码上下文注入，不影响流程执行。
-
----
-
-## 4. 文件结构
+#### Claude Code 版本
 
 ```
 your-project/
 ├── .claude/
-│   └── commands/
-│       └── flow.md          # /flow 命令（调度器）
-└── .coding-process/
-    └── modes.yaml           # 场景配置（7 种工作流）
+│   ├── commands/
+│   │   └── flow.md          # /flow 命令（调度器）
+│   ├── modes/
+│   │   └── modes.yaml       # 场景配置（7 种工作流）
+│   └── skills/              # （可选，由 Superpowers 插件全局提供）
 ```
 
-### 4.1 flow.md
+#### OpenCode 版本
 
-核心调度器，负责：
-- 检查依赖（Superpowers、CodeGraph）
-- 解析用户自然语言
-- 识别场景
-- 执行 stages
-- 调用 Superpowers skills
-- 集成 CodeGraph 上下文
+```
+your-project/
+├── .opencode/
+│   ├── commands/
+│   │   └── flow.md          # /flow 命令（调度器）
+│   ├── skills/              # （可选，由 Superpowers 插件全局提供）
+│   └── modes/
+│       └── modes.yaml       # 场景配置（7 种工作流）
+└── opencode.json            # OpenCode 项目配置（可选）
+```
 
-### 4.2 modes.yaml
+---
 
-场景配置文件，定义：
-- 7 种工作流场景
-- 每种场景的触发词
-- 每种场景的 stages 和对应 skill
+## 4. Superpowers 集成
+
+### 4.1 安装方式
+
+#### Claude Code
+
+```bash
+/plugin install superpowers@claude-plugins-official
+```
+
+#### OpenCode
+
+在 `opencode.json` 中添加：
+
+```json
+{
+  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]
+}
+```
+
+重启 OpenCode 后，Superpowers 的所有 skills 会自动注册。
+
+### 4.2 Skills 列表
+
+| Skill | 用途 | 阶段 |
+|-------|------|------|
+| **brainstorming** | 需求探索和设计 | EXPLORING / PROPOSING |
+| **systematic-debugging** | 系统化调试，定位根因 | EXPLORING (bugfix) |
+| **writing-plans** | 将需求拆分为实施计划 | PLANNING |
+| **subagent-driven-development** | 通过子代理执行任务 | BUILDING |
+| **requesting-code-review** | 代码审查 | REVIEWING |
+| **verification-before-completion** | 完成前验证 | VERIFYING |
+| **finishing-a-development-branch** | 完成开发分支 | FINISHING |
+| **test-driven-development** | 测试驱动开发 | PLANNING / BUILDING (tdd) |
+| **dispatching-parallel-agents** | 并行开发 | PLANNING / BUILDING (parallel) |
+
+### 4.3 Skills 调用方式
+
+#### OpenCode
+
+使用 OpenCode 原生的 `skill` 工具：
+
+```
+Use the skill tool to load brainstorming
+```
+
+#### Claude Code
+
+通过 Superpowers 插件的 skill 系统调用（Claude Code 自动处理）。
 
 ---
 
@@ -167,3 +240,36 @@ your-project/
 | 重构 | refactor | `refactor: {重构描述}` |
 | TDD | feat | `feat: tdd 实现 {功能名}` |
 | 并行 | feat | `feat: 并行实现 {功能名}` |
+
+---
+
+## 7. 版本历史
+
+### [6.0.0] - 2026-07-04
+
+### 🎯 第六次迭代：依赖 Superpowers
+
+### 变更
+- **移除本地 skills**：`.claude/skills/` 和 `.opencode/skills/` 已删除
+- **依赖 Superpowers**：所有 skills 由 Superpowers 插件提供（14+ skills）
+- **精简架构**：只保留调度器（flow.md）和配置（modes.yaml）
+- **安装脚本更新**：检测 Superpowers 安装，不再复制 skills
+- **文档全面更新**：README、DESIGN、COMMANDS 反映新架构
+
+### 设计理念
+- **Superpowers 是核心**：coding-process 只是 Superpowers 的调度器
+- **自然语言优先**：不需要记触发词，说清楚想做什么就行
+- **极简架构**：一个命令文件 + 一个配置文件
+
+---
+
+## 8. 与独立 Skills 版本的区别
+
+| 特性 | v5.0 (独立 skills) | v6.0 (Superpowers 调度器) |
+|------|-------------------|--------------------------|
+| Skills 来源 | 项目本地 `.opencode/skills/` | Superpowers 插件 |
+| 依赖 | 无外部依赖 | 需要 Superpowers |
+| 文件数量 | 多（包含 9 个 skill 文件） | 少（仅调度器和配置） |
+| 维护成本 | 高（需要同步 Superpowers 更新） | 低（Superpowers 自动更新） |
+| 功能完整性 | 中（简化版 skills） | 高（完整 Superpowers 功能） |
+| Token 消耗 | 低（skills 按需加载） | 中（Superpowers skills 完整） |
