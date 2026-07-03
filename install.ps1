@@ -267,7 +267,7 @@ if ($INSTALL_OPENCODE) {
         Write-Host "📂 安装场景配置到 .opencode/modes/" -ForegroundColor Yellow
     }
     
-    # 复制 opencode.json
+    # 复制 opencode.json（必需：注册 Superpowers 插件和 /flow 命令）
     $sourceConfig = Join-Path $TEMP_DIR "opencode.json"
     $destConfig = Join-Path $PROJECT_DIR "opencode.json"
     if (Test-Path $sourceConfig) {
@@ -315,7 +315,7 @@ if ($INSTALL_OPENCODE) {
     Write-Host "  │   ├── skills/                  # （由 Superpowers 插件全局提供）" -ForegroundColor Gray
     Write-Host "  │   └── modes/" -ForegroundColor Gray
     Write-Host "  │       └── modes.yaml           # 场景配置（7 种工作流）" -ForegroundColor White
-    Write-Host "  └── opencode.json                # OpenCode 项目配置（可选）" -ForegroundColor Gray
+    Write-Host "  └── opencode.json                # OpenCode 项目配置（必需，注册 Superpowers 插件）" -ForegroundColor Gray
     Write-Host ""
 }
 

@@ -72,7 +72,7 @@ mkdir -p .opencode/commands .opencode/modes
 cp /tmp/coding-process/.opencode/commands/flow.md .opencode/commands/
 cp /tmp/coding-process/.opencode/modes/modes.yaml .opencode/modes/
 
-# 可选：OpenCode 项目配置
+# 必需：OpenCode 项目配置（注册 Superpowers 插件和 /flow 命令）
 cp /tmp/coding-process/opencode.json ./opencode.json
 
 # 3. 清理
@@ -153,7 +153,7 @@ your-project/
 │   ├── skills/              # （可选，由 Superpowers 插件全局提供）
 │   └── modes/
 │       └── modes.yaml       # 场景配置（7 种工作流）
-└── opencode.json            # OpenCode 项目配置（可选）
+└── opencode.json            # OpenCode 项目配置（必需，注册 Superpowers 插件）
 ```
 
 > **注意**：skills 目录不需要手动创建或复制，Superpowers 插件会自动加载。

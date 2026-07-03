@@ -162,7 +162,7 @@ your-project/
 │   ├── skills/              # （可选，由 Superpowers 插件全局提供）
 │   └── modes/
 │       └── modes.yaml       # 场景配置（7 种工作流）
-└── opencode.json            # OpenCode 项目配置（可选）
+└── opencode.json            # OpenCode 项目配置（必需，注册 Superpowers 插件）
 ```
 
 ---
