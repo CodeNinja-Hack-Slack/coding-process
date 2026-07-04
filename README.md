@@ -2,18 +2,29 @@
 
 > AI 编程工作流编排工具 —— 用自然语言驱动开发任务
 
-coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude Code**、**OpenCode** 和 **Codex**。
-作为 [Superpowers](https://github.com/obra/superpowers) 的调度器，让你用 `/flow 自然语言描述` 执行各种开发任务。
+coding-process 支持多种 AI 编程平台，作为 [Superpowers](https://github.com/obra/superpowers) 的调度器，让你用 `/flow 自然语言描述` 执行开发任务。
+
+## 支持的平台
+
+| 平台 | 状态 |
+|------|------|
+| Claude Code | ✓ 已适配 |
+| OpenCode | ✓ 已适配 |
+| Codex | ✓ 已适配 |
+| Trae | ✓ 已适配 |
+| Trae CN | ✓ 已适配 |
 
 ## 前置依赖
 
 使用前必须先安装 [Superpowers](https://github.com/obra/superpowers)，它提供了所有 skills。
 
-| 平台 | 安装 Superpowers |
-|------|------------------|
-| **Claude Code** | `/plugin install superpowers@claude-plugins-official` |
-| **OpenCode** | 通过 `opencode.json` 自动注册 |
-| **Codex** | 已内置 |
+| 平台 | 安装方式 |
+|------|----------|
+| Claude Code | `/plugin install superpowers@claude-plugins-official` |
+| OpenCode | 通过 `opencode.json` 自动注册 |
+| Codex | 已内置 |
+| Trae | 已内置 |
+| Trae CN | 已内置 |
 
 ## 安装
 
@@ -36,13 +47,25 @@ cp /tmp/coding-process/opencode/opencode.json ./
 rm -rf /tmp/coding-process
 ```
 
-重启 OpenCode 使 Superpowers 插件生效。
-
 ### Codex
 
 ```bash
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
 cp -r /tmp/coding-process/codex/.codex ./
+rm -rf /tmp/coding-process
+```
+
+### Trae / Trae CN
+
+```bash
+git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
+
+# Trae
+cp -r /tmp/coding-process/trae/.trae ./
+
+# 或 Trae CN
+cp -r /tmp/coding-process/trae-cn/.trae-cn ./
+
 rm -rf /tmp/coding-process
 ```
 
@@ -80,31 +103,24 @@ rm -rf /tmp/coding-process
 
 ```
 coding-process/
-├── claude/                      # Claude Code 版本
+├── claude/                        # Claude Code
 │   └── .claude/commands/flow.md
-├── opencode/                    # OpenCode 版本
+├── opencode/                      # OpenCode
 │   ├── .opencode/commands/flow.md
 │   └── opencode.json
-├── codex/                       # Codex 版本
+├── codex/                         # Codex
 │   └── .codex/skills/flow/SKILL.md
+├── trae/                          # Trae
+│   └── .trae/skills/flow/SKILL.md
+├── trae-cn/                       # Trae CN
+│   └── .trae-cn/skills/flow/SKILL.md
 ├── LICENSE
 └── README.md
 ```
 
 ## 卸载
 
-删除对应平台的文件即可：
-
-```bash
-# Claude Code
-rm -rf .claude/
-
-# OpenCode
-rm -rf .opencode/ opencode.json
-
-# Codex
-rm -rf .codex/
-```
+删除对应平台的文件即可。
 
 ## 许可证
 
