@@ -88,16 +88,14 @@ rm -rf /tmp/coding-process
 ## 项目结构
 
 ```
-coding-process/
-├── src/
-│   └── flow.md                    # 核心逻辑（唯一源文件）
-├── .claude/commands/flow.md       # Claude Code 版本
-├── .opencode/commands/flow.md     # OpenCode 版本
-├── .codex/skills/flow/SKILL.md    # Codex 版本
+your-project/
+├── .claude/commands/flow.md       # Claude Code
+├── .opencode/commands/flow.md     # OpenCode
+├── .codex/skills/flow/SKILL.md    # Codex
 └── opencode.json                  # OpenCode 配置
 ```
 
-> 核心逻辑在 `src/flow.md`，各平台版本从这里派生。
+根据你使用的平台，只需复制对应的文件。
 
 ## 卸载
 
