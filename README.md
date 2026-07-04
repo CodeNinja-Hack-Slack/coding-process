@@ -13,7 +13,7 @@ coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude 
 |------|------------------|
 | **Claude Code** | `/plugin install superpowers@claude-plugins-official` |
 | **OpenCode** | 通过 `opencode.json` 自动注册 |
-| **Codex** | 已内置（`.codex/skills/` 目录） |
+| **Codex** | 已内置 |
 
 ## 安装
 
@@ -23,8 +23,7 @@ coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude 
 
 ```bash
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
-mkdir -p .claude/commands
-cp /tmp/coding-process/.claude/commands/flow.md .claude/commands/
+cp -r /tmp/coding-process/claude/.claude ./
 rm -rf /tmp/coding-process
 ```
 
@@ -32,9 +31,8 @@ rm -rf /tmp/coding-process
 
 ```bash
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
-mkdir -p .opencode/commands
-cp /tmp/coding-process/.opencode/commands/flow.md .opencode/commands/
-cp /tmp/coding-process/opencode.json ./opencode.json
+cp -r /tmp/coding-process/opencode/.opencode ./
+cp /tmp/coding-process/opencode/opencode.json ./
 rm -rf /tmp/coding-process
 ```
 
@@ -44,20 +42,13 @@ rm -rf /tmp/coding-process
 
 ```bash
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
-mkdir -p .codex/skills/flow
-cp /tmp/coding-process/.codex/skills/flow/SKILL.md .codex/skills/flow/
+cp -r /tmp/coding-process/codex/.codex ./
 rm -rf /tmp/coding-process
 ```
 
 ### 安装后验证
 
-| 平台 | 验证方式 |
-|------|----------|
-| **Claude Code** | 输入 `/flow`，显示场景菜单则成功 |
-| **OpenCode** | 输入 `/flow`，显示场景菜单则成功 |
-| **Codex** | 输入 `/flow`，显示场景菜单则成功 |
-
-如果提示找不到命令，请检查对应目录下的文件是否存在。
+输入 `/flow`，如果显示场景选择菜单则安装成功。
 
 ## 使用方法
 
@@ -88,14 +79,17 @@ rm -rf /tmp/coding-process
 ## 项目结构
 
 ```
-your-project/
-├── .claude/commands/flow.md       # Claude Code
-├── .opencode/commands/flow.md     # OpenCode
-├── .codex/skills/flow/SKILL.md    # Codex
-└── opencode.json                  # OpenCode 配置
+coding-process/
+├── claude/                      # Claude Code 版本
+│   └── .claude/commands/flow.md
+├── opencode/                    # OpenCode 版本
+│   ├── .opencode/commands/flow.md
+│   └── opencode.json
+├── codex/                       # Codex 版本
+│   └── .codex/skills/flow/SKILL.md
+├── LICENSE
+└── README.md
 ```
-
-根据你使用的平台，只需复制对应的文件。
 
 ## 卸载
 
@@ -110,9 +104,6 @@ rm -rf .opencode/ opencode.json
 
 # Codex
 rm -rf .codex/
-
-# 全部删除
-rm -rf .claude/ .opencode/ .codex/ opencode.json
 ```
 
 ## 许可证
