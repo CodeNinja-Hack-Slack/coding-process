@@ -118,6 +118,148 @@ coding-process/
 └── README.md
 ```
 
+## 新增平台适配指南
+
+如果你想为新平台添加支持，按以下步骤操作。
+
+### 第一步：确定平台的自定义命令目录
+
+每个平台有自己的目录约定。常见模式：
+
+| 类型 | 目录格式 | 代表平台 |
+|------|----------|----------|
+| Commands 类 | `.<平台>/commands/<命令名>.md` | Claude Code、OpenCode |
+| Skills 类 | `.<平台>/skills/<技能名>/SKILL.md` | Codex、Trae |
+
+**如何找到平台的目录：**
+
+```bash
+# 查看用户主目录下的隐藏目录
+ls -la ~ | grep '^\.'
+
+# 找到平台目录后，查看其结构
+ls -la ~/.<平台名>/
+```
+
+例如要适配 Gemini CLI：
+
+```bash
+# 1. 查找 Gemini 相关目录
+ls -la ~/.gemini/
+
+# 2. 查看是否有 commands 或 skills 目录
+ls -la ~/.gemini/commands/ 2>/dev/null || ls -la ~/.gemini/skills/ 2>/dev/null
+```
+
+### 第二步：确定文件格式
+
+**Commands 类平台**（如 Claude Code）使用普通 markdown 文件：
+
+```markdown
+# /flow — AI 编程流程编排
+
+用户输入：`$ARGUMENTS`
+
+你是流程调度器...
+```
+
+**Skills 类平台**（如 Codex、Trae）使用带 frontmatter 的 markdown 文件：
+
+```markdown
+---
+name: flow
+description: "AI 编程工作流编排"
+---
+
+# /flow — AI 编程流程编排
+
+用户输入：`$ARGUMENTS`
+
+你是流程调度器...
+```
+
+### 第三步：创建适配文件
+
+假设要为 **Gemini CLI** 添加支持，且发现它使用 skills 类目录 `.gemini/skills/`：
+
+```bash
+# 1. 创建目录结构
+mkdir -p gemini/.gemini/skills/flow
+
+# 2. 创建 SKILL.md（从现有 Codex 版本复制并修改）
+cat > gemini/.gemini/skills/flow/SKILL.md << 'EOF'
+---
+name: flow
+description: "AI 编程工作流编排 — 自然语言驱动开发任务"
+---
+
+# /flow — AI 编程流程编排
+
+用户输入：`$ARGUMENTS`
+
+你是流程调度器，根据用户任务自动选择场景并调用 Superpowers skills。
+
+...（完整内容参考 codex/.codex/skills/flow/SKILL.md）
+EOF
+```
+
+### 第四步：更新 README
+
+在 README 中添加：
+
+1. 支持的平台表格中添加新平台
+2. 安装部分添加新平台的安装命令
+3. 项目结构中添加新平台目录
+
+### 完整示例：适配一个新的 Skills 类平台
+
+假设新平台叫 **AwesomeAI**，目录约定为 `.awesome/skills/<name>/SKILL.md`：
+
+```
+# 1. 创建目录
+mkdir -p awesome/.awesome/skills/flow
+
+# 2. 创建 SKILL.md
+#    内容参考 codex/.codex/skills/flow/SKILL.md
+#    保持 frontmatter 格式一致
+
+# 3. 测试安装
+cp -r awesome/.awesome ./
+
+# 4. 验证
+#    启动平台，输入 /flow，检查是否显示场景菜单
+```
+
+### 完整示例：适配一个新的 Commands 类平台
+
+假设新平台叫 **SuperAI**，目录约定为 `.super/commands/<name>.md`：
+
+```
+# 1. 创建目录
+mkdir -p super/.super/commands
+
+# 2. 创建 flow.md
+#    内容参考 claude/.claude/commands/flow.md
+#    注意：$ARGUMENTS 是平台用于传递用户输入的变量，
+#    如果平台使用其他变量名（如 {{input}}），需要替换
+
+# 3. 测试安装
+cp -r super/.super ./
+
+# 4. 验证
+#    启动平台，输入 /flow，检查是否正常工作
+```
+
+### 注意事项
+
+1. **Superpowers 依赖**：新平台必须能加载 Superpowers skills，否则 `/flow` 无法执行
+2. **变量语法**：不同平台传递用户输入的变量语法可能不同：
+   - Claude Code: `$ARGUMENTS`
+   - Codex: `$ARGUMENTS`
+   - 其他平台：查阅文档确认
+3. **frontmatter**：Skills 类平台通常需要 frontmatter（`---` 包裹的 YAML），Commands 类平台不需要
+4. **测试**：安装后务必测试 `/flow` 是否能正常显示场景菜单
+
 ## 卸载
 
 删除对应平台的文件即可。
