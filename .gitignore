@@ -1,21 +1,7 @@
-# reference 目录（Superpowers/OpenSpec 源码，不随项目分发）
-reference/
-
-# 本地配置
 .claude/settings.local.json
-
-# Node.js
 node_modules/
-
-# OS 文件
+.flow-state.json
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
-
-# test-project 运行时产物
-test-project/.claude/settings.local.json
-test-project/node_modules/
-test-project/

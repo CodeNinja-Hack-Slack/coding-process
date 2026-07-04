@@ -1,183 +1,136 @@
-# /flow — AI 编程流程编排（OpenCode 版）
+# /flow — AI 编程流程编排
 
 用户输入：`$ARGUMENTS`
 
-## 你的角色
-
-你是流程调度器，根据用户任务描述，自动选择合适的工作流场景，调用 Superpowers skills 执行。
-**核心原则：理解用户意图，调用原生 skill，不自己写阶段逻辑。**
+你是流程调度器，根据用户任务自动选择场景并调用 Superpowers skills。
 
 ---
 
-## 第一步：检查依赖
+## 命令
 
-### 检查 Superpowers 插件
-
-检查 `opencode.json`（项目级或全局）中的 `plugin` 配置是否包含 `superpowers`。
-
-如果未安装：
-```
-⚠️ 未检测到 Superpowers 插件
-
-请先安装 Superpowers：
-在 opencode.json 中添加：
-{
-  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]
-}
-
-然后重启 OpenCode。
-
-输入 1 继续（部分功能不可用），输入 2 终止
-```
+| 输入 | 动作 |
+|------|------|
+| `/flow` | 显示场景选择菜单 |
+| `/flow <描述>` | 识别场景并执行 |
+| `/flow resume` | 从上次中断处继续 |
+| `/flow status` | 显示当前进度 |
 
 ---
 
-## 第二步：解析用户任务
+## 场景选择
 
-### 读取模式配置
-
-读取 `.opencode/modes/modes.yaml`，获取 7 种场景定义。
-
-### 无参数（`/flow`）
-
-显示场景选择菜单：
+无参数时显示菜单：
 
 ```
-📋 请选择工作流场景：
-
-1. 新功能 — 开发完整功能
-2. 修 bug — 修复问题
-3. 快速修改 — 小改动、配置调整
-4. 代码审查 — 审查现有代码
-5. 重构 — 优化代码结构
-6. TDD 开发 — 测试驱动开发
-7. 并行开发 — 并行执行多个任务
+请选择工作流场景：
+1. 新功能    2. 修 bug    3. 快速修改    4. 代码审查
+5. 重构      6. TDD 开发  7. 并行开发
 
 请输入序号或描述：
 ```
 
-用户选择后，提示输入任务描述。
+有描述时按触发词识别场景：
 
-### 有描述（`/flow 用户登录功能`）
-
-**AI 智能分析**用户描述，判断属于哪个场景：
-
-分析维度：
-- **关键词匹配**：检查 modes.yaml 中的 triggers.keywords
-- **意图识别**：创建新东西？修复问题？优化代码？
-- **复杂度判断**：简单修改？完整功能？多模块？
-- **方法论**：是否提到 TDD、测试驱动、并行？
-
-**判断逻辑**：
-
-| 场景 | 判断依据 |
-|------|---------|
-| 新功能 | 创建、添加、实现、开发新东西 |
-| 修 bug | 问题、异常、报错、不工作、修复 |
-| 快速改 | 简单修改、配置、typo、调整 |
-| 代码审查 | 审查、review、检查代码 |
-| 重构 | 重构、优化、整理、重写 |
-| TDD 开发 | 提到 tdd、测试驱动、先写测试 |
-| 并行开发 | 提到并行、同时、拆分任务 |
-
-**展示识别结果**：
-
-```
-🎯 识别场景：{场景名}
-📝 任务描述：{用户描述}
-🔧 执行流程：{skill1} → {skill2} → ...
-
-确认执行？(Y/N)
-```
-
-用户确认后，开始执行。
+| 场景 | 触发词 |
+|------|--------|
+| 新功能 | 功能、feature、添加、创建、实现、开发 |
+| 修 bug | bug、修复、fix、问题、异常、报错、错误 |
+| 快速修改 | 改、typo、配置、调整、修改、简单、快速 |
+| 代码审查 | review、审查、检查代码、看看 |
+| 重构 | refactor、重构、优化代码、整理、重写 |
+| TDD 开发 | tdd、测试驱动、test-driven、先写测试 |
+| 并行开发 | 并行、parallel、同时开发、多任务、拆分 |
 
 ---
 
-## 第三步：执行工作流
+## 执行工作流
 
-### 读取场景配置
-
-从 `.opencode/modes/modes.yaml` 读取选中场景的 stages 列表。
-
-### 执行每个阶段
-
-按顺序执行 stages：
+按 stages 顺序执行，每个阶段调用对应的 skill：
 
 ```
-🔧 执行阶段：{stage_name}（{description}）[{index+1}/{total}]
+执行阶段：{name}（{description}）[{index+1}/{total}]
 ```
 
-**执行逻辑**：
+### 状态管理
 
-1. **调用 Skill**：
-   - 使用 OpenCode 的 `skill` 工具调用对应的 Superpowers skill
-   - 例如：`skill({ name: "brainstorming" })`
-   - 传递任务描述作为上下文
+**开始执行前**：将状态写入 `.flow-state.json`：
 
-2. **阶段完成**：
-   - 显示：`✅ {stage_name} 完成`
-   - 继续下一阶段
+```json
+{
+  "scenario": "feature",
+  "task": "用户登录功能",
+  "stage_index": 0,
+  "total_stages": 6,
+  "stages": ["EXPLORING", "PLANNING", "BUILDING", "REVIEWING", "VERIFYING", "FINISHING"]
+}
+```
 
-### 阶段间控制
+**每个阶段完成后**：更新 `stage_index` 为下一阶段的索引。
 
-- **忽略 skill 的自动转场**：skill 完成后，控制权回到 flow.md
-- **用户中断**：用户可随时输入 `stop` 终止流程
+**全部完成后**：删除 `.flow-state.json`。
 
----
+**用户输入 `stop` 时**：保留 `.flow-state.json`，下次可用 `/flow resume` 续接。
 
-## 第四步：流程完成
+### `/flow resume`
 
-所有阶段执行完成后：
+读取 `.flow-state.json`，从保存的 `stage_index` 继续执行。如果文件不存在，提示用户。
+
+### `/flow status`
+
+读取 `.flow-state.json`，显示当前进度：
 
 ```
-🎉 流程完成！
-
-场景：{场景名}
-任务：{任务描述}
-完成阶段：{stage1} → {stage2} → ...
+场景：{scenario}
+任务：{task}
+进度：{已完成阶段} → 【当前】{当前阶段} → {剩余阶段}
 ```
 
 ---
 
-## 特殊命令
+## 场景定义
 
-| 输入 | 动作 |
-|------|------|
-| `stop` | 终止流程 |
-| `status` | 显示当前执行状态 |
+```yaml
+feature:  # 新功能
+  - { name: EXPLORING, skill: brainstorming, description: 理解需求、设计方案 }
+  - { name: PLANNING, skill: writing-plans, description: 制定计划 }
+  - { name: BUILDING, skill: subagent-driven-development, description: 实施开发 }
+  - { name: REVIEWING, skill: requesting-code-review, description: 代码审查 }
+  - { name: VERIFYING, skill: verification-before-completion, description: 验证 }
+  - { name: FINISHING, skill: finishing-a-development-branch, description: 收尾 }
 
----
+bugfix:  # 修 bug
+  - { name: EXPLORING, skill: systematic-debugging, description: 调试定位 }
+  - { name: BUILDING, skill: subagent-driven-development, description: 实施修复 }
+  - { name: VERIFYING, skill: verification-before-completion, description: 验证 }
 
-## 异常处理
+quick:  # 快速修改
+  - { name: BUILDING, skill: subagent-driven-development, description: 直接修改 }
+  - { name: FINISHING, skill: finishing-a-development-branch, description: 收尾 }
 
-遇到异常时：
-1. 显示错误信息
-2. 提供恢复建议
-3. 询问用户：重试 / 跳过 / 终止
+review:  # 代码审查
+  - { name: REVIEWING, skill: requesting-code-review, description: 执行审查 }
 
-**常见异常**：
-- Superpowers 未安装：提示安装
-- Skill 执行失败：检查 Superpowers 安装
-- 用户中断：停止流程
+refactor:  # 重构
+  - { name: EXPLORING, skill: brainstorming, description: 分析现有代码、设计优化方案 }
+  - { name: PLANNING, skill: writing-plans, description: 制定重构计划 }
+  - { name: BUILDING, skill: subagent-driven-development, description: 执行重构 }
+  - { name: REVIEWING, skill: requesting-code-review, description: 审查结果 }
+  - { name: VERIFYING, skill: verification-before-completion, description: 验证 }
+  - { name: FINISHING, skill: finishing-a-development-branch, description: 收尾 }
 
----
+tdd:  # TDD 开发
+  - { name: EXPLORING, skill: brainstorming, description: 理解需求、设计方案 }
+  - { name: PLANNING, skill: test-driven-development, description: 编写测试 }
+  - { name: BUILDING, skill: test-driven-development, description: 实现功能 }
+  - { name: REVIEWING, skill: requesting-code-review, description: 代码审查 }
+  - { name: VERIFYING, skill: verification-before-completion, description: 验证 }
+  - { name: FINISHING, skill: finishing-a-development-branch, description: 收尾 }
 
-## Commit Message 规范
-
-| 场景 | type | 示例 |
-|------|------|------|
-| 新功能 | feat | `feat: 实现 {功能名}` |
-| 修 bug | fix | `fix: 修复 {问题描述}` |
-| 快速改 | fix | `fix: {修改描述}` |
-| 重构 | refactor | `refactor: {重构描述}` |
-| TDD | feat | `feat: tdd 实现 {功能名}` |
-| 并行 | feat | `feat: 并行实现 {功能名}` |
-
----
-
-注意：
-- 你是调度器，不是执行者
-- 每个阶段使用 `skill` 工具调用对应 skill，由 skill 提供具体执行指导
-- 保持阶段间控制权，阶段完成后回到此处继续下一阶段
-- 用户可随时输入 `stop` 终止流程
+parallel:  # 并行开发
+  - { name: EXPLORING, skill: brainstorming, description: 理解需求、设计方案 }
+  - { name: PLANNING, skill: dispatching-parallel-agents, description: 拆分任务 }
+  - { name: BUILDING, skill: dispatching-parallel-agents, description: 并行实施 }
+  - { name: REVIEWING, skill: requesting-code-review, description: 代码审查 }
+  - { name: VERIFYING, skill: verification-before-completion, description: 验证 }
+  - { name: FINISHING, skill: finishing-a-development-branch, description: 收尾 }
+```

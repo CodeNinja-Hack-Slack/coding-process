@@ -5,20 +5,13 @@
     "flow": {
       "description": "AI 编程工作流编排 — 自然语言驱动开发任务",
       "template": "使用 skill 工具加载并执行 coding-process 工作流。用户输入：$ARGUMENTS",
-      "agent": "build",
-      "subtask": false
+      "agent": "build"
     }
   },
   "agent": {
     "build": {
-      "description": "Default primary agent with full tool access for development",
-      "mode": "primary",
-      "permission": {
-        "edit": "allow",
-        "bash": "allow",
-        "task": "allow",
-        "skill": "allow"
-      }
+      "description": "Default primary agent with full tool access",
+      "mode": "primary"
     },
     "plan": {
       "description": "Restricted agent for planning and analysis",
@@ -28,23 +21,5 @@
         "bash": "ask"
       }
     }
-  },
-  "mcp": {},
-  "tools": {
-    "read": true,
-    "edit": true,
-    "write": true,
-    "bash": true,
-    "grep": true,
-    "glob": true,
-    "list": true,
-    "task": true,
-    "skill": true
-  },
-  "permission": {
-    "edit": "allow",
-    "bash": "allow",
-    "task": "allow",
-    "skill": "allow"
   }
 }
