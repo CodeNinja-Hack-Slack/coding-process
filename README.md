@@ -2,7 +2,7 @@
 
 > AI 编程工作流编排工具 —— 用自然语言驱动开发任务
 
-coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude Code** 和 **OpenCode**。
+coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude Code**、**OpenCode** 和 **Codex**。
 作为 [Superpowers](https://github.com/obra/superpowers) 的调度器，让你用 `/flow 自然语言描述` 执行各种开发任务。
 
 ## 前置依赖
@@ -11,70 +11,53 @@ coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude 
 
 | 平台 | 安装 Superpowers |
 |------|------------------|
-| **Claude Code** | 启动 Claude Code 后执行：`/plugin install superpowers@claude-plugins-official` |
-| **OpenCode** | 在 `opencode.json` 中添加配置（见下方安装步骤），重启 OpenCode 即可 |
+| **Claude Code** | `/plugin install superpowers@claude-plugins-official` |
+| **OpenCode** | 通过 `opencode.json` 自动注册 |
+| **Codex** | 已内置（`.codex/skills/` 目录） |
 
 ## 安装
 
+在你的项目根目录下执行，选择对应的平台：
+
 ### Claude Code
 
-在你的项目根目录下执行：
-
 ```bash
-# 1. 下载 coding-process
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
-
-# 2. 创建命令目录
 mkdir -p .claude/commands
-
-# 3. 复制 /flow 命令
 cp /tmp/coding-process/.claude/commands/flow.md .claude/commands/
-
-# 4. 清理
 rm -rf /tmp/coding-process
 ```
-
-然后在 Claude Code 中安装 Superpowers 插件：
-
-```
-/plugin install superpowers@claude-plugins-official
-```
-
-安装完成后，在 Claude Code 中输入 `/flow` 即可使用。
 
 ### OpenCode
 
-在你的项目根目录下执行：
-
 ```bash
-# 1. 下载 coding-process
 git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
-
-# 2. 创建命令目录
 mkdir -p .opencode/commands
-
-# 3. 复制 /flow 命令
 cp /tmp/coding-process/.opencode/commands/flow.md .opencode/commands/
-
-# 4. 复制 OpenCode 配置（注册 Superpowers 插件）
 cp /tmp/coding-process/opencode.json ./opencode.json
-
-# 5. 清理
 rm -rf /tmp/coding-process
 ```
 
-重启 OpenCode，Superpowers 插件会自动加载。
+重启 OpenCode 使 Superpowers 插件生效。
+
+### Codex
+
+```bash
+git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
+mkdir -p .codex/skills/flow
+cp /tmp/coding-process/.codex/skills/flow/SKILL.md .codex/skills/flow/
+rm -rf /tmp/coding-process
+```
 
 ### 安装后验证
 
 | 平台 | 验证方式 |
 |------|----------|
-| **Claude Code** | 输入 `/flow`，如果显示场景选择菜单则安装成功 |
-| **OpenCode** | 输入 `/flow`，如果显示场景选择菜单则安装成功 |
+| **Claude Code** | 输入 `/flow`，显示场景菜单则成功 |
+| **OpenCode** | 输入 `/flow`，显示场景菜单则成功 |
+| **Codex** | 输入 `/flow`，显示场景菜单则成功 |
 
-如果提示找不到命令，请检查：
-- Claude Code：`.claude/commands/flow.md` 文件是否存在
-- OpenCode：`.opencode/commands/flow.md` 和 `opencode.json` 是否存在
+如果提示找不到命令，请检查对应目录下的文件是否存在。
 
 ## 使用方法
 
@@ -86,45 +69,35 @@ rm -rf /tmp/coding-process
 /flow 重构这个函数              # 重构
 /flow tdd 写支付模块            # TDD 开发
 /flow 并行开发用户管理模块      # 并行开发
+/flow resume                    # 从上次中断处继续
+/flow status                    # 查看当前进度
 ```
-
-无参数 `/flow` 显示场景选择菜单。
 
 ## 7 种工作流场景
 
 | 场景 | 触发词 | 流程 |
 |------|--------|------|
-| **新功能** | 功能、feature、添加、创建 | brainstorming → writing-plans → subagent-driven-development → requesting-code-review → finishing |
-| **修 bug** | bug、修复、fix、问题、异常 | systematic-debugging → subagent-driven-development → verification-before-completion |
+| **新功能** | 功能、feature、添加、创建 | brainstorming → writing-plans → subagent-driven-development → requesting-code-review → verification → finishing |
+| **修 bug** | bug、修复、fix、问题、异常 | systematic-debugging → subagent-driven-development → verification |
 | **快速修改** | 改、typo、配置、调整 | subagent-driven-development → finishing |
 | **代码审查** | review、审查、检查 | requesting-code-review |
-| **重构** | refactor、重构、优化 | brainstorming → writing-plans → subagent-driven-development → requesting-code-review |
-| **TDD 开发** | tdd、测试驱动 | brainstorming → test-driven-development → requesting-code-review → finishing |
-| **并行开发** | 并行、parallel、同时 | brainstorming → dispatching-parallel-agents → requesting-code-review → finishing |
-
-AI 会分析你的自然语言描述，自动选择最合适的场景。
+| **重构** | refactor、重构、优化 | brainstorming → writing-plans → subagent-driven-development → requesting-code-review → verification → finishing |
+| **TDD 开发** | tdd、测试驱动 | brainstorming → test-driven-development → requesting-code-review → verification → finishing |
+| **并行开发** | 并行、parallel、同时 | brainstorming → dispatching-parallel-agents → requesting-code-review → verification → finishing |
 
 ## 项目结构
 
 ```
-your-project/
-├── .claude/
-│   └── commands/
-│       └── flow.md              # /flow 命令（Claude Code 版）
-├── .opencode/
-│   └── commands/
-│       └── flow.md              # /flow 命令（OpenCode 版）
-└── opencode.json                # OpenCode 配置（注册 Superpowers 插件）
+coding-process/
+├── src/
+│   └── flow.md                    # 核心逻辑（唯一源文件）
+├── .claude/commands/flow.md       # Claude Code 版本
+├── .opencode/commands/flow.md     # OpenCode 版本
+├── .codex/skills/flow/SKILL.md    # Codex 版本
+└── opencode.json                  # OpenCode 配置
 ```
 
-> 注意：根据你使用的平台，只需复制对应的文件。只用 Claude Code 就不需要 `.opencode/` 和 `opencode.json`，反之亦然。
-
-## 特殊命令
-
-| 命令 | 作用 |
-|------|------|
-| `/flow stop` | 终止当前流程 |
-| `/flow status` | 显示当前执行状态 |
+> 核心逻辑在 `src/flow.md`，各平台版本从这里派生。
 
 ## 卸载
 
@@ -137,8 +110,11 @@ rm -rf .claude/
 # OpenCode
 rm -rf .opencode/ opencode.json
 
-# 两个都删
-rm -rf .claude/ .opencode/ opencode.json
+# Codex
+rm -rf .codex/
+
+# 全部删除
+rm -rf .claude/ .opencode/ .codex/ opencode.json
 ```
 
 ## 许可证

@@ -1,4 +1,11 @@
+---
+name: flow
+description: "AI 编程工作流编排 — 自然语言驱动开发任务，自动调用 Superpowers skills"
+---
+
 # /flow — AI 编程流程编排
+
+用户输入：`$ARGUMENTS`
 
 你是流程调度器，根据用户任务自动选择场景并调用 Superpowers skills。
 
