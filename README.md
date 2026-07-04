@@ -22,7 +22,7 @@ coding-process 是一个跨平台 AI 编程流程编排工具，支持 **Claude 
 
 ```bash
 # 1. 下载 coding-process
-git clone https://github.com/void-frost-craft/coding-process.git /tmp/coding-process
+git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
 
 # 2. 创建命令目录
 mkdir -p .claude/commands
@@ -48,7 +48,7 @@ rm -rf /tmp/coding-process
 
 ```bash
 # 1. 下载 coding-process
-git clone https://github.com/void-frost-craft/coding-process.git /tmp/coding-process
+git clone https://github.com/CodeNinja-Hack-Slack/coding-process.git /tmp/coding-process
 
 # 2. 创建命令目录
 mkdir -p .opencode/commands
