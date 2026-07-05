@@ -1,9 +1,11 @@
 {
-  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
+  "plugin": [
+    "superpowers@git+https://github.com/obra/superpowers.git#v1.0.0"
+  ],
   "command": {
     "flow": {
-      "description": "AI 编程工作流编排",
-      "template": "使用 skill 工具加载并执行 coding-process 工作流。用户输入：$ARGUMENTS"
+      "description": "AI 编程 Skill 调度器，根据自然语言描述自动选择并执行 Superpowers skills",
+      "template": "# /flow — AI 编程流程编排\n\n用户输入：`$ARGUMENTS`\n\n你是流程调度器，根据用户任务自动选择合适的 Superpowers skills 并按序执行。\n\n---\n\n## 可用 Skills\n\n| Skill | 用途 | 何时使用 |\n|-------|------|----------|\n| brainstorming | 需求梳理与方案设计 | 从零开始设计、理解需求、阅读分析代码 |\n| writing-plans | 制定实施计划 | 需要拆分任务、安排步骤 |\n| using-git-worktrees | 创建隔离工作分支 | 涉及代码修改时（只读任务跳过） |\n| subagent-driven-development | 子代理驱动开发 | 标准开发任务（默认开发方式） |\n| test-driven-development | 测试驱动开发 | 用户要求 TDD、或需要严格测试保障 |\n| executing-plans | 批量执行计划 | 需要人工检查点的场景 |\n| dispatching-parallel-agents | 并行子代理开发 | 大任务可拆分独立并行 |\n| systematic-debugging | 系统化调试定位 | 修 bug、分析问题根因 |\n| verification-before-completion | 完成前验证 | 任何代码修改后都应验证 |\n| requesting-code-review | 请求代码审查 | 代码写完后审查质量 |\n| receiving-code-review | 处理审查反馈 | 收到审查意见后修复 |\n| finishing-a-development-branch | 分支收尾 | 开发完成后合并/PR/清理 |\n\n---\n\n## 决策规则\n\n根据用户描述，按以下原则选择 skills 并排列执行顺序：\n\n1. **只读任务**：用户只想理解/分析代码，不修改文件 → 只用 `brainstorming`\n2. **分支隔离**：涉及代码修改 → 必须先用 `using-git-worktrees` 创建工作分支\n3. **必须验证**：涉及代码修改 → 必须包含 `verification-before-completion`\n4. **修 bug 优先调试**：修 bug 类任务 → 先 `systematic-debugging`，再修复\n5. **大型任务先规划**：复杂任务 → 先 `brainstorming` → `writing-plans`，再开发\n6. **开发方式三选一**：\n   - `subagent-driven-development`（默认）\n   - `test-driven-development`（用户要求 TDD 时）\n   - `dispatching-parallel-agents`（任务可拆分并行时）\n7. **审查与收尾**：代码修改完成后 → `requesting-code-review` → `finishing-a-development-branch`\n8. **不要堆砌**：只选任务真正需要的 skills，简单任务不需要完整流程\n"
     }
   }
 }

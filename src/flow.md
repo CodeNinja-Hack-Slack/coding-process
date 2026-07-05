@@ -1,8 +1,3 @@
----
-description: AI 编程 Skill 调度器，根据自然语言描述自动选择并执行 Superpowers skills
-agent: build
----
-
 # /flow — AI 编程流程编排
 
 用户输入：`$ARGUMENTS`
