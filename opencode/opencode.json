@@ -1,7 +1,4 @@
 {
-  "plugin": [
-    "superpowers@git+https://github.com/obra/superpowers.git#v1.0.0"
-  ],
   "command": {
     "flow": {
       "description": "AI 编程 Skill 调度器，根据自然语言描述自动选择并执行 Superpowers skills",
